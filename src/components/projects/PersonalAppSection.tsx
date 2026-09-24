@@ -1,6 +1,7 @@
 import React from 'react';
-import { HardHat, Camera, CheckSquare, Palette, UserCheck, AlertTriangle } from 'lucide-react';
+import { HardHat, Camera, CheckSquare, Palette, UserCheck } from 'lucide-react';
 import { PROJECTS } from '../../data/portfolioData';
+import { InteractivePhone3D } from '../canvas3d/InteractivePhone3D';
 
 export const PersonalAppSection: React.FC = () => {
   const project = PROJECTS.find((p) => p.id === 'personal-app') || PROJECTS[2];
@@ -41,103 +42,15 @@ export const PersonalAppSection: React.FC = () => {
       {/* Main Grid Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pt-8">
         
-        {/* Left Side: 3D Construction Interactive Scene */}
+        {/* Left Side: 3D Construction Interactive Phone */}
         <div className="lg:col-span-6 flex flex-col items-center justify-center">
-          <div className="relative w-full max-w-[380px] h-[460px] rounded-3xl bg-zinc-950/90 border-2 border-amber-500/40 p-6 flex flex-col justify-between overflow-hidden shadow-2xl select-none group">
-            <div className="absolute inset-0 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:16px_16px] opacity-15" />
-            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-amber-500/20 blur-3xl pointer-events-none" />
-
-            <div className="flex items-center justify-between z-10 border-b border-white/10 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40">
-                  <HardHat className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-xs font-mono font-bold text-amber-300">MY-APP ARCHITECTURE</span>
-                  <span className="text-[10px] text-zinc-400 block font-mono">React Native Task Engine</span>
-                </div>
-              </div>
-              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
-                BUILDING SCREENS
-              </span>
-            </div>
-
-            <div className="relative my-auto flex items-center justify-center py-4 z-10">
-              <div className="absolute -inset-4 border-2 border-dashed border-amber-500/30 rounded-3xl pointer-events-none flex items-center justify-center">
-                <span className="absolute -top-3 px-2 py-0.5 bg-zinc-900 border border-amber-500/40 text-[9px] font-mono text-amber-400">
-                  MY-APP BLUEPRINT
-                </span>
-              </div>
-
-              {/* Central Phone Blueprint Frame */}
-              <div className="relative w-48 h-80 rounded-[32px] bg-gradient-to-b from-zinc-900 to-black border-2 border-amber-500/60 p-3 shadow-2xl flex flex-col justify-between transform transition-transform group-hover:scale-105 duration-300">
-                <div className="w-16 h-3 mx-auto bg-amber-500/30 rounded-full border border-amber-500/50 mb-2" />
-
-                <div className="space-y-2 text-[10px]">
-                  <div className="p-2 rounded-xl bg-amber-500/20 border border-amber-500/40 animate-pulse">
-                    <div className="flex items-center justify-between text-amber-300 font-mono">
-                      <span>TaskCheckInCamera</span>
-                      <span>100%</span>
-                    </div>
-                  </div>
-
-                  <div className="p-2 rounded-xl bg-blue-500/20 border border-blue-500/40">
-                    <div className="flex items-center justify-between text-blue-300 font-mono">
-                      <span>TaskDetailScreen</span>
-                      <span>90%</span>
-                    </div>
-                  </div>
-
-                  <div className="p-2 rounded-xl bg-rose-500/20 border border-rose-500/40 border-dashed animate-pulse">
-                    <div className="flex items-center justify-between text-rose-300 font-mono">
-                      <span>CoupleDrawingScreen</span>
-                      <span>Building...</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-white/10">
-                  <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-full w-[78%] rounded-full animate-pulse" />
-                  </div>
-                  <span className="text-[9px] font-mono text-zinc-400 text-center block mt-1">Assembly Progress: 78%</span>
-                </div>
-              </div>
-
-              {/* 3D Workers */}
-              <div className="absolute -top-2 -right-4 p-2.5 rounded-2xl bg-amber-950/90 border border-amber-500/50 shadow-xl flex items-center gap-2 animate-float-slow">
-                <span className="text-xl">👷‍♂️</span>
-                <div>
-                  <span className="text-[9px] font-bold text-amber-300 block leading-tight">Camera Installer</span>
-                  <span className="text-[8px] text-zinc-400 font-mono">CheckInCameraScreen</span>
-                </div>
-              </div>
-
-              <div className="absolute -bottom-2 -left-4 p-2.5 rounded-2xl bg-zinc-900/90 border border-amber-500/50 shadow-xl flex items-center gap-2 animate-float-slow" style={{ animationDelay: '1.2s' }}>
-                <span className="text-xl">🎨</span>
-                <div>
-                  <span className="text-[9px] font-bold text-amber-300 block leading-tight">Canvas Engineer</span>
-                  <span className="text-[8px] text-zinc-400 font-mono">CoupleDrawingScreen</span>
-                </div>
-              </div>
-
-              <div className="absolute top-1/2 -translate-y-1/2 -left-6 p-2.5 rounded-2xl bg-zinc-900/90 border border-amber-500/50 shadow-xl flex items-center gap-2 animate-float-slow" style={{ animationDelay: '0.6s' }}>
-                <span className="text-xl">💻</span>
-                <div>
-                  <span className="text-[9px] font-bold text-amber-300 block leading-tight">Dev Worker</span>
-                  <span className="text-[8px] text-zinc-400 font-mono">tasksService.ts</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-[10px] text-amber-400/90 font-mono border-t border-white/10 pt-3 z-10">
-              <span className="flex items-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                Work In Progress
-              </span>
-              <span>Coming together, one feature at a time</span>
-            </div>
-          </div>
+          <InteractivePhone3D
+            theme="construction"
+            floatingTags={project.floatingTags || ['TaskCheckInCamera', 'CoupleDrawing', 'tasksService', 'ProfileScreen']}
+            interactive={true}
+            customTitle="Personal Task & Drawing App"
+            customSubtitle="Under Active Construction"
+          />
         </div>
 
         {/* Right Side: Real Modules from my-app */}

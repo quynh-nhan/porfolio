@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { ProjectScreen } from '../../types';
 import { PetVillaScreenRenderer } from './PetVillaScreenRenderer';
+import { RotateCw, RefreshCw } from 'lucide-react';
 
 interface InteractivePhone3DProps {
   theme?: 'orange' | 'blue' | 'hero' | 'construction';
@@ -28,33 +29,62 @@ export const InteractivePhone3D: React.FC<InteractivePhone3DProps> = ({
   const [rotateX, setRotateX] = useState(-5);
   const [rotateY, setRotateY] = useState(12);
   const [isDragging, setIsDragging] = useState(false);
+  const [autoRotate, setAutoRotate] = useState(false);
+  
   const dragStart = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Auto-rotation effect when enabled
+  useEffect(() => {
+    if (!autoRotate || isDragging) return;
+    const interval = setInterval(() => {
+      setRotateY((prev) => (prev + 0.8) % 360);
+    }, 16);
+    return () => clearInterval(interval);
+  }, [autoRotate, isDragging]);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!interactive) return;
     setIsDragging(true);
+    setAutoRotate(false);
     dragStart.current = { x: e.clientX, y: e.clientY };
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Fallback if pointer capture isn't supported
+    }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging || !interactive) return;
     const deltaX = e.clientX - dragStart.current.x;
     const deltaY = e.clientY - dragStart.current.y;
     
-    setRotateY((prev) => Math.max(-45, Math.min(45, prev + deltaX * 0.4)));
-    setRotateX((prev) => Math.max(-30, Math.min(30, prev - deltaY * 0.4)));
+    setRotateY((prev) => (prev + deltaX * 0.6) % 360);
+    setRotateX((prev) => Math.max(-55, Math.min(55, prev - deltaY * 0.5)));
     
     dragStart.current = { x: e.clientX, y: e.clientY };
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
     setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // Fallback
+    }
   };
 
   const handleReset = () => {
     setRotateX(-5);
     setRotateY(12);
+    setAutoRotate(false);
+  };
+
+  const toggleAutoRotate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAutoRotate((prev) => !prev);
   };
 
   const getThemeStyles = () => {
@@ -95,16 +125,17 @@ export const InteractivePhone3D: React.FC<InteractivePhone3DProps> = ({
   return (
     <div
       ref={containerRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
       onDoubleClick={handleReset}
+      style={{ touchAction: 'none' }}
       className={`relative w-full max-w-[340px] sm:max-w-[380px] h-[580px] sm:h-[640px] mx-auto flex items-center justify-center select-none perspective-1000 ${
         interactive ? 'cursor-grab active:cursor-grabbing' : ''
       }`}
     >
-      <div className={`absolute w-72 h-96 rounded-full ${styles.glowBg} blur-3xl -z-10 animate-pulse-glow`} />
+      <div className={`absolute w-72 h-96 rounded-full ${styles.glowBg} blur-3xl -z-10 animate-pulse-glow pointer-events-none`} />
 
       {floatingTags.map((tag, index) => {
         const offsets = [
@@ -141,21 +172,23 @@ export const InteractivePhone3D: React.FC<InteractivePhone3DProps> = ({
         style={{
           transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
           transformStyle: 'preserve-3d',
-          transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
+          transition: isDragging || autoRotate ? 'none' : 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
         }}
         className={`relative w-[280px] sm:w-[310px] h-[540px] sm:h-[600px] rounded-[48px] bg-gradient-to-b from-zinc-800 via-zinc-900 to-black p-3.5 border-4 shadow-2xl ${styles.phoneBorder}`}
       >
-        <div className="absolute -left-2.5 top-28 w-1 h-10 rounded-l-md bg-zinc-700" />
-        <div className="absolute -left-2.5 top-42 w-1 h-14 rounded-l-md bg-zinc-700" />
-        <div className="absolute -right-2.5 top-36 w-1 h-16 rounded-r-md bg-zinc-700" />
+        <div className="absolute -left-2.5 top-28 w-1 h-10 rounded-l-md bg-zinc-700 pointer-events-none" />
+        <div className="absolute -left-2.5 top-42 w-1 h-14 rounded-l-md bg-zinc-700 pointer-events-none" />
+        <div className="absolute -right-2.5 top-36 w-1 h-16 rounded-r-md bg-zinc-700 pointer-events-none" />
 
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-40 flex items-center justify-between px-3 border border-zinc-800/80">
+        {/* Dynamic Island Notch */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-40 flex items-center justify-between px-3 border border-zinc-800/80 pointer-events-none">
           <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center">
             <div className="w-1 h-1 rounded-full bg-blue-500/80"></div>
           </div>
           <div className="w-2 h-2 rounded-full bg-zinc-800"></div>
         </div>
 
+        {/* Inner Phone Display */}
         <div className="relative w-full h-full rounded-[38px] overflow-hidden bg-zinc-950 border border-zinc-800/80 shadow-inner">
           {screenData ? (
             <PetVillaScreenRenderer screen={screenData} />
@@ -166,7 +199,7 @@ export const InteractivePhone3D: React.FC<InteractivePhone3DProps> = ({
               
               <div className="pt-8 text-center space-y-2">
                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${styles.tagBg}`}>
-                  {theme === 'blue' ? 'GVN Mobile App' : 'Mobile Ecosystem'}
+                  {theme === 'blue' ? 'GVN Mobile App' : theme === 'construction' ? 'Personal Mobile App' : 'Mobile Ecosystem'}
                 </span>
                 <h3 className="text-xl font-black text-white tracking-tight">{customTitle || 'Live Published App'}</h3>
                 <p className="text-xs text-zinc-400">{customSubtitle || 'React Native & TypeScript'}</p>
@@ -176,19 +209,26 @@ export const InteractivePhone3D: React.FC<InteractivePhone3DProps> = ({
                 <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-black text-white">
-                      GVN
+                      {theme === 'construction' ? 'APP' : 'GVN'}
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-white">Fclick Solution</h4>
-                      <p className="text-xs text-zinc-400">Published Feature Builds</p>
+                      <h4 className="font-bold text-sm text-white">
+                        {theme === 'construction' ? 'My App Architecture' : 'Fclick Solution'}
+                      </h4>
+                      <p className="text-xs text-zinc-400">
+                        {theme === 'construction' ? 'React Native Engine' : 'Published Feature Builds'}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  {['Order Change Request', 'GPS Timestamp Watermark', 'Monthly Packages', 'Production Testing'].map((item) => (
+                  {(theme === 'construction' 
+                    ? ['TaskCheckInCamera', 'TaskDetailScreen', 'CoupleDrawingScreen', 'tasksService.ts']
+                    : ['Order Change Request', 'GPS Timestamp Watermark', 'Monthly Packages', 'Production Testing']
+                  ).map((item) => (
                     <div key={item} className="flex items-center gap-2 p-2 rounded-xl bg-black/40 border border-white/5 text-zinc-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                      <span className={`w-1.5 h-1.5 rounded-full ${theme === 'construction' ? 'bg-amber-400' : 'bg-blue-400'}`} />
                       <span>{item}</span>
                     </div>
                   ))}
@@ -210,7 +250,10 @@ export const InteractivePhone3D: React.FC<InteractivePhone3DProps> = ({
           {screensList.map((s, idx) => (
             <button
               key={s.id}
-              onClick={() => onScreenChange(idx)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onScreenChange(idx);
+              }}
               className={`w-2.5 h-2.5 rounded-full transition-all ${
                 activeScreenIndex === idx ? 'bg-[#ff6b00] w-6' : 'bg-zinc-700 hover:bg-zinc-500'
               }`}
@@ -221,10 +264,34 @@ export const InteractivePhone3D: React.FC<InteractivePhone3DProps> = ({
       )}
 
       {interactive && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-zinc-500 font-mono pointer-events-none flex items-center gap-1">
-          <span>👆 Drag to rotate 3D angle</span>
+        <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[11px] text-zinc-400 font-mono flex items-center gap-2 z-40 bg-zinc-900/80 px-3 py-1 rounded-full border border-zinc-800/80 backdrop-blur-sm shadow-md">
+          <span className="flex items-center gap-1 text-zinc-300">
+            👆 Drag / Touch to rotate 3D
+          </span>
+          <span className="text-zinc-600">|</span>
+          <button
+            onClick={toggleAutoRotate}
+            className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-colors ${
+              autoRotate ? 'bg-orange-500/30 text-orange-300 border border-orange-500/50' : 'hover:bg-zinc-800 text-zinc-400'
+            }`}
+            title="Toggle 360 Auto Rotation"
+          >
+            <RotateCw className={`w-3 h-3 ${autoRotate ? 'animate-spin' : ''}`} />
+            <span>{autoRotate ? 'Spinning' : '360°'}</span>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleReset();
+            }}
+            className="hover:text-white text-zinc-400 transition-colors p-0.5"
+            title="Reset 3D Angle"
+          >
+            <RefreshCw className="w-3 h-3" />
+          </button>
         </div>
       )}
     </div>
   );
 };
+

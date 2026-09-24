@@ -15,7 +15,8 @@ export const PetVillaScreenRenderer: React.FC<PetVillaScreenRendererProps> = ({ 
           <img
             src={screen.imgUrl}
             alt={screen.title}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain pointer-events-none select-none"
+            draggable={false}
           />
         </div>
       ) : (
