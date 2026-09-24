@@ -81,11 +81,6 @@ export const InteractivePhone3D: React.FC<InteractivePhone3DProps> = ({
     setAutoRotate(false);
   };
 
-  const toggleAutoRotate = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setAutoRotate((prev) => !prev);
-  };
-
   const getThemeStyles = () => {
     switch (theme) {
       case 'blue':
