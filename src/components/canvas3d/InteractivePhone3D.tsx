@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { ProjectScreen } from '../../types';
 import { PetVillaScreenRenderer } from './PetVillaScreenRenderer';
-import { RotateCw, RefreshCw } from 'lucide-react';
 
 interface InteractivePhone3DProps {
   theme?: 'orange' | 'blue' | 'hero' | 'construction';
@@ -263,34 +262,6 @@ export const InteractivePhone3D: React.FC<InteractivePhone3DProps> = ({
         </div>
       )}
 
-      {interactive && (
-        <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[11px] text-zinc-400 font-mono flex items-center gap-2 z-40 bg-zinc-900/80 px-3 py-1 rounded-full border border-zinc-800/80 backdrop-blur-sm shadow-md">
-          <span className="flex items-center gap-1 text-zinc-300">
-            👆 Drag / Touch to rotate 3D
-          </span>
-          <span className="text-zinc-600">|</span>
-          <button
-            onClick={toggleAutoRotate}
-            className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-colors ${
-              autoRotate ? 'bg-orange-500/30 text-orange-300 border border-orange-500/50' : 'hover:bg-zinc-800 text-zinc-400'
-            }`}
-            title="Toggle 360 Auto Rotation"
-          >
-            <RotateCw className={`w-3 h-3 ${autoRotate ? 'animate-spin' : ''}`} />
-            <span>{autoRotate ? 'Spinning' : '360°'}</span>
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleReset();
-            }}
-            className="hover:text-white text-zinc-400 transition-colors p-0.5"
-            title="Reset 3D Angle"
-          >
-            <RefreshCw className="w-3 h-3" />
-          </button>
-        </div>
-      )}
     </div>
   );
 };
